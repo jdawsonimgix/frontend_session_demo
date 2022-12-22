@@ -20,44 +20,25 @@ function App() {
     formData.append("pic", pic);
     //"https://backend-sessions-demo.vercel.app/startImgixSession",
 
-    const test = await axios
+    const retrievedBackendData = await axios
       .post("http://localhost:5001/startImgixSession", formData)
       .then(console.log("starting imgix session"))
       .catch((error) => console.log(error.message));
 
     //console.log(test.data.theFileType);
 
-    setSessionSourceId(test.data.allData.data.attributes.id); //Stores session Source id
-    setSessionStatus(test.data.allData.data.attributes.status); //Sessions tatus
-    setSessionPresignedUrl(test.data.allData.data.attributes.url); //Session Presigned url
-    setHeldFormData(test.data.theBufferReturned.data); //Buffer
-    setContentType(test.data.theFileType); //content-type
+    console.log(retrievedBackendData.data);
 
-    runPostRequest();
+    setSessionSourceId(retrievedBackendData.data.sessionIdBackend); //Stores session Source id
+    setSessionStatus(retrievedBackendData.data.sessionStatusBackend); //Session status
+    setSessionPresignedUrl(
+      retrievedBackendData.data.sessionPresignedUrlBackend
+    ); //Session Presigned url
+    //setHeldFormData(test.data.theBufferReturned.data); //Buffer
+    // setContentType(test.data.theFileType); //content-type
   };
   const imgixHandleChangeForSessionStarting = (e) => {
     setPic(e.target.files[0]);
-  };
-
-  const runPostRequest = async (e) => {
-    var config = {
-      method: "put",
-      url: sessionPresignedUrl,
-      headers: {
-        "Content-Type": theContentType,
-      },
-      data: heldFormData,
-    };
-
-    let finalPost = await axios(config)
-      .then(function (response) {
-        console.log("inside the axios for /postSession");
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
-    console.log(finalPost);
   };
 
   //IMGIX EXAMPLE: PUT REQUEST WITH PRESIGNED SESSION URL
