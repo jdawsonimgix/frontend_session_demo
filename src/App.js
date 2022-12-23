@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Imgix from "react-imgix";
+
 import "./App.css";
 
 function App() {
@@ -9,6 +11,7 @@ function App() {
   ); //Used to check status.
   const [sessionStatus, setSessionStatus] = useState("No Status");
   const [sessionFilename, setSessionFilename] = useState("");
+  const [searchArray, setSearchArray] = useState([]);
 
   useEffect(() => {
     //Used to set PENDING to CLOSED
@@ -26,6 +29,7 @@ function App() {
     if (sessionStatus === "COMPLETE") {
       console.log("USEEFFECT SET TO COMPLETE");
       console.log(sessionFilename);
+      setSearchArray(sessionFilename);
     }
   }, [sessionStatus]);
 
@@ -55,17 +59,21 @@ function App() {
     e.preventDefault();
     const formData = new FormData();
     formData.append("pic", pic);
-    console.log(formData);
     // "https://backend-sessions-demo.vercel.app/startImgixSession",
 
     const retrievedBackendData = await axios
-      .post("http://localhost:5001/startImgixSession", formData)
+      .post(
+        "https://backend-sessions-demo.vercel.app/startImgixSession",
+        formData
+      )
       .then(console.log("starting imgix session"))
       .catch((error) => console.log(error.message));
 
+    let tempFilename = retrievedBackendData.data.sessionFilenameBackend;
+    let myArrayForFilename = tempFilename.split();
     setSessionSourceId(retrievedBackendData.data.sessionIdBackend);
     setSessionStatus(retrievedBackendData.data.sessionStatusBackend);
-    setSessionFilename(retrievedBackendData.data.sessionFilenameBackend);
+    setSessionFilename(myArrayForFilename);
   };
   const imgixHandleChangeForSessionStarting = (e) => {
     setPic(e.target.files[0]);
@@ -95,6 +103,18 @@ function App() {
       </form>
       <br />
       <h3>The Session Status is: {sessionStatus}</h3>
+      <div>{searchArray.length === 0 && <h2>No image uploaded</h2>}</div>
+      <div className='container'>
+        {searchArray.map((value, index) => (
+          <Imgix
+            src={"https://sourcerer.imgix.net/" + value}
+            width={200}
+            height={200}
+            key={index}
+            imgixParams={{ auto: "format,compress,enhance", fit: "crop" }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
