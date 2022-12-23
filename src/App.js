@@ -8,6 +8,7 @@ function App() {
     "no session. Please choose a file"
   ); //Used to check status.
   const [sessionStatus, setSessionStatus] = useState("No Status");
+  const [sessionFilename, setSessionFilename] = useState("");
 
   useEffect(() => {
     //Used to set PENDING to CLOSED
@@ -21,6 +22,10 @@ function App() {
         imgixHandleCheckStatus();
       }, 7000);
       return () => clearInterval(interval);
+    }
+    if (sessionStatus === "COMPLETE") {
+      console.log("USEEFFECT SET TO COMPLETE");
+      console.log(sessionFilename);
     }
   }, [sessionStatus]);
 
@@ -50,17 +55,17 @@ function App() {
     e.preventDefault();
     const formData = new FormData();
     formData.append("pic", pic);
+    console.log(formData);
+    // "https://backend-sessions-demo.vercel.app/startImgixSession",
 
     const retrievedBackendData = await axios
-      .post(
-        "https://backend-sessions-demo.vercel.app/startImgixSession",
-        formData
-      )
+      .post("http://localhost:5001/startImgixSession", formData)
       .then(console.log("starting imgix session"))
       .catch((error) => console.log(error.message));
 
     setSessionSourceId(retrievedBackendData.data.sessionIdBackend);
     setSessionStatus(retrievedBackendData.data.sessionStatusBackend);
+    setSessionFilename(retrievedBackendData.data.sessionFilenameBackend);
   };
   const imgixHandleChangeForSessionStarting = (e) => {
     setPic(e.target.files[0]);
