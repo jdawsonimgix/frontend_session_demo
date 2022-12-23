@@ -12,7 +12,18 @@ function App() {
     useState("No session URL"); //Long amazon url
   useEffect(() => {
     checkIfClosed();
+    if (sessionStatus === "CLOSED") {
+      const interval = setInterval(() => {
+        console.log("This will run every 7 seconds!");
+        imgixHandleCheckStatus();
+      }, 7000);
+      return () => clearInterval(interval);
+    }
   }, [sessionStatus]);
+
+  const closedDoThis = async () => {
+    console.log("closedDoThis");
+  };
 
   //Call if it's set to pending.
   const checkIfClosed = async (e) => {
@@ -69,8 +80,8 @@ function App() {
   };
 
   //IMGIX EXAMPLE: CHECK SESSION STATUS
-  const imgixHandleCheckStatus = async (e) => {
-    e.preventDefault();
+  const imgixHandleCheckStatus = async () => {
+    // e.preventDefault();
     const value = { grabbedSessionSourceID: sessionSourceId };
 
     //check session
