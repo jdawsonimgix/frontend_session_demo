@@ -10,7 +10,34 @@ function App() {
   const [sessionStatus, setSessionStatus] = useState("No Status");
   const [sessionPresignedUrl, setSessionPresignedUrl] =
     useState("No session URL"); //Long amazon url
-  useEffect(() => {}, []);
+  useEffect(() => {
+    checkIfClosed();
+  }, [sessionStatus]);
+
+  //Call if it's set to pending.
+  const checkIfClosed = async (e) => {
+    console.log("checkIfClosed function");
+    console.log("session status is: " + sessionStatus);
+
+    if (sessionStatus === "PENDING") {
+      console.log("pending here");
+      const valueData = { grabbedSessionSourceID: sessionSourceId };
+
+      //close session
+      const sessionStatusForAxios = await axios
+        .post(
+          "https://backend-sessions-demo.vercel.app/checkImgixCloseSession",
+          valueData
+        )
+        .then(console.log("Client - CLOSE imgix session"))
+        .catch((error) => console.log(error.message));
+
+      setSessionStatus(sessionStatusForAxios.data.data.attributes.status);
+    }
+    if (sessionStatus === "CLOSED") {
+      console.log("this closed funciton is hit!!!");
+    }
+  };
 
   //IMGIX EXAMPLES: STARTING SESSION
   const imgixHandleSubmitForSessionStarting = async (e) => {
@@ -99,3 +126,9 @@ function App() {
 }
 
 export default App;
+
+/*
+if status goes to pending, run function close it.
+
+check every 3 seconds, if the status is set to complete, stop checking
+*/
